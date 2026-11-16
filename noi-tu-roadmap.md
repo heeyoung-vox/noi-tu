@@ -93,7 +93,7 @@ Every step ends with something you can run and click. The game rules still end u
 ### Day 0: setup & deploy a skeleton
 
 **Tasks**
-- [ ] One repository with `backend/` and `frontend/` folders
+- [ ] One repository with `noi-tu-backend/` and `noi-tu-frontend/` folders
 - [ ] Generate the Spring Boot project and the React project
 - [ ] Docker:
   - [ ] Write a Dockerfile for the backend; build and run it locally, then open the health endpoint
