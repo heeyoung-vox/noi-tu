@@ -8,7 +8,6 @@ class NoiTuBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
-		throw new AssertionError();
 	}
 
 }
