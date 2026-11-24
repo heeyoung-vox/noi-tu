@@ -1,0 +1,23 @@
+[Unit]
+Description=Noi Tu backend (Spring Boot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=noitu
+Group=noitu
+WorkingDirectory=/opt/noitu
+EnvironmentFile=/etc/noitu/noitu.env
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=50 -jar /opt/noitu/app.jar
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
