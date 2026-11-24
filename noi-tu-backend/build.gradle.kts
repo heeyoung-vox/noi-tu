@@ -30,3 +30,9 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+tasks.bootJar {
+    archiveFileName.set("app.jar")
+}
+tasks.jar {
+    enabled = false   // stops the -plain.jar from being built
+}
