@@ -1,5 +1,4 @@
-name: React CI
-
+name: Frontend CI/CD
 
 on:
   push:
@@ -12,36 +11,65 @@ on:
     paths:
       - "noi-tu-frontend/**"
       - ".github/workflows/frontend.yml"
+
 permissions:
   contents: read
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ./noi-tu-frontend
-
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./noi-tu-frontend
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Setup Node.js 24
+      - name: Set up Node.js 24
         uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: noi-tu-frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run linter
+      - name: Lint
         run: npm run lint
 
-
-      - name: Build project
+      - name: Type-check and build
         run: npm run build
+        env:
+          VITE_API_URL: https://api.noitu.vohuydang.io.vn
+
+      - name: Upload build output
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-dist
+          path: noi-tu-frontend/dist
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-frontend
+      cancel-in-progress: false
+
+    steps:
+      - name: Download build output
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=noi-tu --branch=main
