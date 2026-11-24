@@ -45,31 +45,26 @@ jobs:
         env:
           VITE_API_URL: https://api.noitu.vohuydang.io.vn
 
-      - name: Upload build output
-        uses: actions/upload-artifact@v7
+      - name: Upload build output for GitHub Pages
+        uses: actions/upload-pages-artifact@v5
         with:
-          name: frontend-dist
           path: noi-tu-frontend/dist
-          retention-days: 7
 
   deploy:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     concurrency:
       group: deploy-frontend
       cancel-in-progress: false
 
     steps:
-      - name: Download build output
-        uses: actions/download-artifact@v8
-        with:
-          name: frontend-dist
-          path: dist
-
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=noi-tu --branch=main
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
